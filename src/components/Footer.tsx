@@ -17,7 +17,7 @@ export function Footer() {
             <div className="flex gap-3">
               <a href="#" className="text-gray-400 hover:text-white transition-colors"><Twitter className="w-5 h-5" /></a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors"><Github className="w-5 h-5" /></a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors"><Mail className="w-5 h-5" /></a>
+              <a href="mailto:hello@kairo.app" className="text-gray-400 hover:text-white transition-colors"><Mail className="w-5 h-5" /></a>
             </div>
           </div>
           <div><h4 className="text-sm font-semibold text-white mb-4">Product</h4>
@@ -30,17 +30,17 @@ export function Footer() {
           </div>
           <div><h4 className="text-sm font-semibold text-white mb-4">Resources</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Documentation</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">API Reference</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Support</Link></li>
+              <li><Link href="/privacy" className="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Blog</a></li>
+              <li><a href="mailto:support@kairo.app" className="text-sm text-gray-400 hover:text-white transition-colors">Support</a></li>
             </ul>
           </div>
-          <div><h4 className="text-sm font-semibold text-white mb-4">Legal</h4>
+          <div><h4 className="text-sm font-semibold text-white mb-4">Connect</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Disclaimer</Link></li>
+              <li><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Twitter / X</a></li>
+              <li><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">LinkedIn</a></li>
+              <li><a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Discord Community</a></li>
             </ul>
           </div>
         </div>
