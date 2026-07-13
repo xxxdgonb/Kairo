@@ -1,0 +1,39 @@
+﻿
+> kairo@1.0.0 build
+> next build
+
+node.exe :  ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( ⚠ Warning: Nex...not be correct.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ We detected multiple lockfiles and selected the directory of C:\Users\wenqu\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles
+ if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\package-lock.json
+
+   ▲ Next.js 15.5.20
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 20.8s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/12) ...
+Error occurred prerendering page "/_not-found". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: supabaseUrl is required.
+    at <unknown> (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\chunks\112.js:24:55535)
+    at new cP (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\chunks\112.js:24:55786)
+    at cQ (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\chunks\112.js:24:60706)
+    at 70798 (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\chunks\708.js:1:6834)
+    at c (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\webpack-runtime.js:1:142)
+    at 84342 (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\chunks\708.js:1:7075)
+    at Object.c [as require] (C:\Users\wenqu\Documents\Codex\2026-07-13\y-q\kairo\.next\server\webpack-runtime.js:1:142
+) {
+  digest: '3802885872'
+}
+Export encountered an error on /_not-found/page: /_not-found, exiting the build.
+ ⨯ Next.js build worker exited with code: 1 and signal: null

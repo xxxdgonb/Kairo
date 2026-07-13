@@ -1,4 +1,12 @@
-﻿import { StockData, CryptoData } from "@/lib/types";
+﻿export interface CryptoPrice {
+  symbol: string;
+  name: string;
+  price: number;
+  change24h: number;
+  marketCap: string;
+  volume24h: string;
+  supply: string;
+}
 
 interface CoinGeckoCoin {
   id: string;
@@ -11,7 +19,26 @@ interface CoinGeckoCoin {
   circulating_supply?: number;
 }
 
-export async function fetchCryptoPrices(): Promise<CryptoData[]> {
+function formatMarketCap(value: number): string {
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${value.toLocaleString()}`;
+}
+
+function formatVolume(value: number): string {
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${value.toLocaleString()}`;
+}
+
+function formatSupply(value: number): string {
+  if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
+  return value.toLocaleString();
+}
+
+export async function fetchCryptoPrices(): Promise<CryptoPrice[]> {
   try {
     const response = await fetch(
       "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false",
@@ -33,23 +60,4 @@ export async function fetchCryptoPrices(): Promise<CryptoData[]> {
     console.error("CoinGecko fetch error:", error);
     return [];
   }
-}
-
-function formatMarketCap(value: number): string {
-  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
-  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-  return `$${value.toLocaleString()}`;
-}
-
-function formatVolume(value: number): string {
-  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-  return `$${value.toLocaleString()}`;
-}
-
-function formatSupply(value: number): string {
-  if (value >= 1e9) return `${(value / 1e9).toFixed(2)}B`;
-  if (value >= 1e6) return `${(value / 1e6).toFixed(2)}M`;
-  return value.toLocaleString();
 }

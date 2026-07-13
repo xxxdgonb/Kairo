@@ -1,10 +1,12 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { TrendingUp, TrendingDown, Plus, Search, Bell, ChevronRight, BarChart3, Shield, BookOpen, ArrowUpRight, ArrowDownLeft, RefreshCw, DollarSign } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { TrendingUp, TrendingDown, Plus, Search, Bell, ChevronRight, BarChart3, Shield, BookOpen, RefreshCw, DollarSign, Loader2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart as RePieChart, Pie, Cell } from "recharts";
 import { MOCK_HOLDINGS, MARKET_INDICES, NEWS_ITEMS, PORTFOLIO_STATS } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CHART_DATA = [
   { date: "Jan", value: 10000 },
@@ -30,8 +32,28 @@ const TABS = [
 ];
 
 export default function DashboardPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [selectedTab, setSelectedTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -39,7 +61,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-white">Welcome back, Investor</h1>
+              <h1 className="text-2xl font-bold text-white">Welcome back, {user.email?.split("@")[0]}</h1>
               <p className="text-sm text-gray-400 mt-1">Here is your portfolio overview for today.</p>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -91,73 +113,70 @@ function OverviewContent() {
               </div>
             </div>
             <div className="text-2xl font-bold text-white mb-1">{card.value}</div>
-            <div className="flex items-center gap-1 text-sm text-green-400"><ArrowUpRight className="w-3 h-3" />{card.change}</div>
+            <div className={`text-sm ${card.change.startsWith("+") || card.change === "Moderate" ? "text-green-400" : "text-red-400"}`}>{card.change}</div>
           </div>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 glass-effect rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div><h3 className="text-lg font-semibold text-white">Portfolio Performance</h3><p className="text-sm text-gray-400">Last 7 months</p></div>
-            <div className="flex gap-2">{["1M", "3M", "6M", "1Y"].map((period) => (<button key={period} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${period === "6M" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>{period}</button>))}</div>
+          <h3 className="text-lg font-semibold text-white mb-4">Portfolio Performance</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={CHART_DATA}>
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={12} />
+                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                <Area type="monotone" dataKey="value" stroke="#3b82f6" fillOpacity={1} fill="url(#colorValue)" />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-          <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={CHART_DATA}>
-              <defs><linearGradient id="valueGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/><stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
-              <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(v) => "$" + Math.round(v/1000) + "k"} />
-              <Tooltip contentStyle={{ backgroundColor: "#1e293b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "#fff" }} />
-              <Area type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} fill="url(#valueGradient)" />
-            </AreaChart>
-          </ResponsiveContainer>
         </div>
 
         <div className="glass-effect rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-6">Sector Allocation</h3>
-          <ResponsiveContainer width="100%" height={180}>
-            <RePieChart>
-              <Pie data={SECTOR_DATA} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={5} dataKey="value">
-                {SECTOR_DATA.map((entry, index) => (<Cell key={"cell-" + index} fill={entry.color} />))}
-              </Pie>
-            </RePieChart>
-          </ResponsiveContainer>
-          <div className="space-y-3 mt-4">
+          <h3 className="text-lg font-semibold text-white mb-4">Sector Allocation</h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <RePieChart>
+                <Pie data={SECTOR_DATA} cx="50%" cy="50%" innerRadius={40} outerRadius={60} paddingAngle={5} dataKey="value">
+                  {SECTOR_DATA.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </RePieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="space-y-2 mt-4">
             {SECTOR_DATA.map((sector) => (
               <div key={sector.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: sector.color }}></div><span className="text-sm text-gray-300">{sector.name}</span></div>
-                <span className="text-sm font-medium text-white">{sector.value}%</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sector.color }} />
+                  <span className="text-sm text-gray-300">{sector.name}</span>
+                </div>
+                <span className="text-sm text-gray-400">{sector.value}%</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="glass-effect rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Market Indices</h3>
-          <div className="space-y-3">
-            {MARKET_INDICES.map((idx) => (
-              <div key={idx.name} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
-                <span className="text-sm font-medium text-gray-300">{idx.name}</span>
-                <div className="text-right"><div className="text-sm text-white">{idx.value}</div><div className={`text-xs ${idx.positive ? "text-green-400" : "text-red-400"}`}>{idx.change}</div></div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="glass-effect rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-4"><h3 className="text-lg font-semibold text-white">Latest News</h3><Link href="/search" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">View All <ChevronRight className="w-4 h-4" /></Link></div>
-          <div className="space-y-3">
-            {NEWS_ITEMS.slice(0, 5).map((news) => (
-              <div key={news.id} className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0"><h4 className="text-sm text-gray-200 group-hover:text-white transition-colors line-clamp-2">{news.title}</h4><div className="flex items-center gap-2 mt-2"><span className="text-xs text-gray-500">{news.source}</span><span className="text-xs text-gray-600">{"•"}</span><span className="text-xs text-gray-500">{news.time}</span></div></div>
-                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 flex-shrink-0 mt-1" />
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="mt-6 glass-effect rounded-2xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Market Indices</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {MARKET_INDICES.map((index) => (
+            <div key={index.name} className="p-3 rounded-xl bg-white/[0.02]">
+              <div className="text-xs text-gray-400 mb-1">{index.name}</div>
+              <div className="text-sm font-semibold text-white">{index.value}</div>
+              <div className={`text-xs ${index.positive ? "text-green-400" : "text-red-400"}`}>{index.change}</div>
+            </div>
+          ))}
         </div>
       </div>
     </>
@@ -204,7 +223,7 @@ function NewsFeed() {
         <div key={news.id} className="glass-effect rounded-2xl p-6 hover:border-white/15 transition-all cursor-pointer group">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2"><span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">{news.category}</span><span className="text-xs text-gray-500">{news.source} {"•"} {news.time}</span></div>
+              <div className="flex items-center gap-2 mb-2"><span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">{news.category}</span><span className="text-xs text-gray-500">{news.source} — {news.time}</span></div>
               <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors mb-2">{news.title}</h3>
               <p className="text-sm text-gray-400 leading-relaxed">AI-powered analysis will show impact on your portfolio, historical context, and actionable insights.</p>
             </div>
