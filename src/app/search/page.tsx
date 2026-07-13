@@ -78,7 +78,7 @@ export default function SearchPage() {
         </div>
         <div className="flex gap-1 mb-6 bg-slate-900/50 p-1 rounded-xl w-fit">
           {TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${tab === t.id ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}>
+            <button key={t.id} onClick={() => setTab(t.id)} className={lex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all }>
               <t.icon className="w-4 h-4" />{t.label}
             </button>
           ))}
@@ -93,15 +93,15 @@ export default function SearchPage() {
                 </div>
               )}
               {tab === "stocks" && filteredStocks.map((stock) => (
-                <button key={stock.symbol} onClick={() => setSelectedSymbol(stock.symbol)} className={`w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left ${selectedSymbol === stock.symbol ? "bg-blue-600/10 border-l-2 border-l-blue-500" : ""}`}>
+                <button key={stock.symbol} onClick={() => setSelectedSymbol(stock.symbol)} className={w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left }>
                   <div><div className="font-semibold text-white">{stock.symbol}</div><div className="text-xs text-gray-400 truncate max-w-[150px]">{stock.name}</div></div>
-                  <div className="text-right"><div className="text-sm text-white">${stock.price}</div><div className={`text-xs flex items-center justify-end gap-1 ${stock.changePercent >= 0 ? "text-green-400" : "text-red-400"}`}>{stock.changePercent >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{stock.changePercent >= 0 ? "+" : ""}{stock.changePercent}%</div></div>
+                  <div className="text-right"><div className="text-sm text-white"></div><div className={	ext-xs flex items-center justify-end gap-1 }>{stock.changePercent >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{stock.changePercent >= 0 ? "+" : ""}{stock.changePercent}%</div></div>
                 </button>
               ))}
               {tab === "crypto" && !loading && filteredCrypto.map((crypto) => (
-                <button key={crypto.symbol} onClick={() => setSelectedSymbol(crypto.symbol)} className={`w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left ${selectedSymbol === crypto.symbol ? "bg-orange-600/10 border-l-2 border-l-orange-500" : ""}`}>
+                <button key={crypto.symbol} onClick={() => setSelectedSymbol(crypto.symbol)} className={w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left }>
                   <div><div className="font-semibold text-white">{crypto.symbol}</div><div className="text-xs text-gray-400">{crypto.name}</div></div>
-                  <div className="text-right"><div className="text-sm text-white">${crypto.price.toLocaleString()}</div><div className={`text-xs flex items-center justify-end gap-1 ${crypto.change24h >= 0 ? "text-green-400" : "text-red-400"}`}>{crypto.change24h >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{crypto.change24h >= 0 ? "+" : ""}{crypto.change24h}%</div></div>
+                  <div className="text-right"><div className="text-sm text-white"></div><div className={	ext-xs flex items-center justify-end gap-1 }>{crypto.change24h >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{crypto.change24h >= 0 ? "+" : ""}{crypto.change24h}%</div></div>
                 </button>
               ))}
               {tab === "crypto" && loading && <div className="p-4 text-center text-gray-500 text-sm">Loading...</div>}
@@ -142,10 +142,10 @@ function AssetDetail({ data, isWatchlisted, onToggleWatchlist }: { data: any; is
       <div className="glass-effect rounded-2xl p-6">
         <div className="flex items-start justify-between mb-4">
           <div><div className="flex items-center gap-3 mb-1"><h2 className="text-2xl font-bold text-white">{data.symbol}</h2>
-            <button onClick={onToggleWatchlist} className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"><Star className={`w-5 h-5 ${isWatchlisted ? "text-yellow-400 fill-yellow-400" : "text-gray-500"}`} /></button>
+            <button onClick={onToggleWatchlist} className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"><Star className={w-5 h-5 } /></button>
           </div><p className="text-gray-400">{data.name}</p></div>
-          <div className="text-right"><div className="text-3xl font-bold text-white">${data.price?.toLocaleString()}</div>
-            <div className={`flex items-center justify-end gap-1 text-lg ${isPositive ? "text-green-400" : "text-red-400"}`}>
+          <div className="text-right"><div className="text-3xl font-bold text-white"></div>
+            <div className={lex items-center justify-end gap-1 text-lg }>
               {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />} {isPositive ? "+" : ""}{changeVal}%
             </div>
           </div>
@@ -158,7 +158,7 @@ function AssetDetail({ data, isWatchlisted, onToggleWatchlist }: { data: any; is
       <div className="glass-effect rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-4"><ShieldCheck className="w-5 h-5 text-blue-400" /><h3 className="text-lg font-semibold text-white">AI Analysis</h3></div>
         <div className="space-y-4">
-          <div><div className="text-sm text-gray-400 mb-1">Summary</div><p className="text-sm text-gray-200 leading-relaxed">{isStock ? `${data.name} is currently trading at $${data.price} with a P/E ratio of ${data.pe}.` : `Bitcoin and major cryptocurrencies continue to show strong momentum.`}</p></div>
+          <div><div className="text-sm text-gray-400 mb-1">Summary</div><p className="text-sm text-gray-200 leading-relaxed">{isStock ? ${data.name} is currently trading at {data.price} with a P/E ratio of . : Bitcoin and major cryptocurrencies continue to show strong momentum.}</p></div>
           <div className="grid sm:grid-cols-2 gap-4"><div><div className="text-sm text-gray-400 mb-1">Valuation</div><p className="text-sm text-gray-200">{isStock ? "Current valuation appears fair based on sector averages." : "On-chain metrics suggest accumulation phase continues."}</p></div><div><div className="text-sm text-gray-400 mb-1">Risks</div><p className="text-sm text-gray-200">{isStock ? "Regulatory scrutiny and market volatility remain key risks." : "Regulatory uncertainty remains a key risk factor."}</p></div></div>
           <div><div className="text-sm text-gray-400 mb-1">Opportunities</div><p className="text-sm text-gray-200">{isStock ? "Growth potential in AI and cloud computing sectors." : "Layer 2 scaling solutions driving ecosystem growth."}</p></div>
         </div>
