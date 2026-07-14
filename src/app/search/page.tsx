@@ -15,7 +15,7 @@ const TABS = [
 export default function SearchPage() {
   const [tab, setTab] = useState("stocks");
   const [query, setQuery] = useState("");
-  const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [watchlist, setWatchlist] = useState(["AAPL", "BTC"]);
   const [cryptoData, setCryptoData] = useState<CryptoPrice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -128,7 +128,7 @@ export default function SearchPage() {
   );
 }
 
-function AssetDetail({ data, isWatchlisted, onToggleWatchlist }) {
+function AssetDetail({ data, isWatchlisted, onToggleWatchlist }: { data: any; isWatchlisted: boolean; onToggleWatchlist: () => void }) {
   const isStock = "pe" in data;
   const metrics = isStock ? [
     { label: "Market Cap", value: data.marketCap },
