@@ -4,32 +4,88 @@ import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, ArrowRight, Github, ShieldCheck, Zap } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kairo-red.vercel.app";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // If already logged in, redirect to dashboard
+  if (user) {
+    router.push("/dashboard");
+    return null;
+  }
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${SITE_URL}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.error("Google login error:", error);
+      setError("Google login failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleGithubLogin = async () => {
     setLoading(true);
-    await supabase.auth.signInWithOAuth({ provider: "github" });
+    setError("");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${SITE_URL}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.error("GitHub login error:", error);
+      setError("GitHub login failed. Please try again.");
+      setLoading(false);
+    }
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccessMessage("");
+
     if (isSignUp) {
-      await supabase.auth.signUp({ email, password, options: { data: { full_name: name } } });
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name },
+          emailRedirectTo: `${SITE_URL}/auth/callback`,
+        },
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccessMessage("Check your email for the confirmation link!");
+      }
     } else {
-      await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError("Invalid email or password. Please try again.");
+      } else {
+        router.push("/dashboard");
+      }
     }
     setLoading(false);
   };
@@ -46,24 +102,85 @@ export default function LoginPage() {
           <p className="text-gray-400 mt-2">{isSignUp ? "Start your investment journey today." : "Sign in to access your portfolio."}</p>
         </div>
 
+        {/* Error/Success Messages */}
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+            <p className="text-sm text-red-400 text-center">{error}</p>
+          </div>
+        )}
+        {successMessage && (
+          <div className="mb-4 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+            <p className="text-sm text-green-400 text-center">{successMessage}</p>
+          </div>
+        )}
+
         <div className="space-y-3 mb-6">
-          <button onClick={handleGoogleLogin} disabled={loading} className="w-full glass-effect hover:bg-white/5 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50">Continue with Google</button>
-          <button onClick={handleGithubLogin} disabled={loading} className="w-full glass-effect hover:bg-white/5 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50"><Github className="w-5 h-5" /> Continue with GitHub</button>
+          <button onClick={handleGoogleLogin} disabled={loading} className="w-full glass-effect hover:bg-white/5 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50">
+            Continue with Google
+          </button>
+          <button onClick={handleGithubLogin} disabled={loading} className="w-full glass-effect hover:bg-white/5 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition-colors disabled:opacity-50">
+            <Github className="w-5 h-5" /> Continue with GitHub
+          </button>
         </div>
 
-        <div className="flex items-center gap-4 mb-6"><div className="flex-1 h-px bg-white/10"></div><span className="text-sm text-gray-500">or continue with email</span><div className="flex-1 h-px bg-white/10"></div></div>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="flex-1 h-px bg-white/10"></div>
+          <span className="text-sm text-gray-500">or continue with email</span>
+          <div className="flex-1 h-px bg-white/10"></div>
+        </div>
 
         <form className="space-y-4" onSubmit={handleEmailAuth}>
-          {isSignUp && (<div><label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" /></div>)}
-          <div><label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label><div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" /></div></div>
-          <div><label className="block text-sm font-medium text-gray-300 mb-2">Password</label><div className="relative"><input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 pr-12 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">{showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div></div>
-          {!isSignUp && (<div className="flex items-center justify-between"><label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 rounded bg-slate-800 border-white/20 text-blue-600 focus:ring-blue-500" /><span className="text-sm text-gray-400">Remember me</span></label><a href="#" className="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a></div>)}
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50">{loading ? "Processing..." : (isSignUp ? "Create Account" : "Sign In")} <ArrowRight className="w-4 h-4" /></button>
+          {isSignUp && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" />
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full pl-11 pr-4 py-3 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+            <div className="relative">
+              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="w-full px-4 py-3 pr-12 bg-slate-900 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          {!isSignUp && (
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 rounded bg-slate-800 border-white/20 text-blue-600 focus:ring-blue-500" />
+                <span className="text-sm text-gray-400">Remember me</span>
+              </label>
+              <a href="#" className="text-sm text-blue-400 hover:text-blue-300">Forgot password?</a>
+            </div>
+          )}
+          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+            {loading ? "Processing..." : (isSignUp ? "Create Account" : "Sign In")} <ArrowRight className="w-4 h-4" />
+          </button>
         </form>
 
-        <p className="text-center text-sm text-gray-400 mt-6">{isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}<button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-blue-400 hover:text-blue-300 font-medium">{isSignUp ? "Sign in" : "Sign up"}</button></p>
+        <p className="text-center text-sm text-gray-400 mt-6">
+          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-blue-400 hover:text-blue-300 font-medium">
+            {isSignUp ? "Sign in" : "Sign up"}
+          </button>
+        </p>
 
-        <div className="mt-8 p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/10"><div className="flex items-start gap-3"><ShieldCheck className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" /><div><p className="text-xs text-yellow-400/80 leading-relaxed">By creating an account, you agree to our Terms of Service and Privacy Policy. Kairo provides educational tools and information only — not financial advice.</p></div></div></div>
+        <div className="mt-8 p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/10">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs text-yellow-400/80 leading-relaxed">By creating an account, you agree to our Terms of Service and Privacy Policy. Kairo provides educational tools and information only — not financial advice.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
