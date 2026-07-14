@@ -19,7 +19,7 @@ export default function SearchPage() {
   const [watchlist, setWatchlist] = useState(["AAPL", "BTC"]);
   const [cryptoData, setCryptoData] = useState<CryptoPrice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCrypto() {
@@ -55,7 +55,7 @@ export default function SearchPage() {
     c.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  const toggleWatchlist = (symbol) => {
+  const toggleWatchlist = (symbol: string) => {
     setWatchlist((prev) =>
       prev.includes(symbol) ? prev.filter((s) => s !== symbol) : [...prev, symbol]
     );
@@ -92,7 +92,7 @@ export default function SearchPage() {
                   <p className="text-sm text-gray-400">Loading real-time prices...</p>
                 </div>
               )}
-              {tab === "stocks" && filteredStocks.map((stock) => (
+              {tab === "stocks" && filteredStocks.map((stock: StockData) => (
                 <button key={stock.symbol} onClick={() => setSelectedSymbol(stock.symbol)} className={`w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left ` + (selectedSymbol === stock.symbol ? "bg-blue-600/10" : "")}>
                   <div><div className="font-semibold text-white">{stock.symbol}</div><div className="text-xs text-gray-400 truncate max-w-[150px]">{stock.name}</div></div>
                   <div className="text-right"><div className="text-sm text-white">{"$" + stock.price}</div>
@@ -102,7 +102,7 @@ export default function SearchPage() {
                   <ChevronRight className="w-4 h-4 text-gray-500 ml-2" />
                 </button>
               ))}
-              {tab === "crypto" && !loading && filteredCrypto.map((coin) => (
+              {tab === "crypto" && !loading && filteredCrypto.map((coin: CryptoPrice) => (
                 <button key={coin.symbol} onClick={() => setSelectedSymbol(coin.symbol)} className={`w-full flex items-center justify-between p-4 border-b border-white/5 hover:bg-white/[0.03] transition-colors text-left ` + (selectedSymbol === coin.symbol ? "bg-blue-600/10" : "")}>
                   <div><div className="font-semibold text-white">{coin.symbol}</div><div className="text-xs text-gray-400 truncate max-w-[150px]">{coin.name}</div></div>
                   <div className="text-right"><div className="text-sm text-white">{"$" + coin.price}</div>
